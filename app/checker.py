@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 class Repositories:
     def __init__(self):
         self.skipped = ['my-repository']
