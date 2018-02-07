@@ -35,7 +35,8 @@ class GithubConnector:
 
 
 class Checker:
-    def run(self, argv):
+    @staticmethod
+    def run(argv):
         arguments = CheckerArgumentParser(argv)
         repositories = Repositories()
         for group in ['skipped', 'invalid', 'outdated', 'updated']:
