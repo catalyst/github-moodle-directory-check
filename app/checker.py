@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 class Repositories:
     def __init__(self):
         self.skipped = ['my-repository']
@@ -11,14 +12,9 @@ class Repositories:
 class Checker:
     def run(self):
         repositories = Repositories()
-        for repository in repositories.skipped:
-            print(' skipped: ' + repository)
-        for repository in repositories.invalid:
-            print(' invalid: ' + repository)
-        for repository in repositories.outdated:
-            print('outdated: ' + repository)
-        for repository in repositories.updated:
-            print(' updated: ' + repository)
+        for group in ['skipped', 'invalid', 'outdated', 'updated']:
+            for repository in getattr(repositories, group):
+                print('{:>8}: {}'.format(group, repository))
 
 
 if __name__ == "__main__":

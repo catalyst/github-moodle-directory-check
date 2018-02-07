@@ -18,4 +18,15 @@ class CheckerTest(unittest.TestCase):
         self.assertIn('outdated: moodle-local_updateme', output)
         self.assertIn('updated: moodle-local_published', output)
 
-
+    def test_it_aligns_the_group_name(self):
+        stdout = StringIO()
+        with contextlib.redirect_stdout(stdout):
+            Checker().run()
+        position = None
+        lines = stdout.getvalue().strip('\n').split('\n')
+        for line in lines:
+            found = line.find(':')
+            if position is None:
+                position = found
+            else:
+                self.assertEquals(position, found)
