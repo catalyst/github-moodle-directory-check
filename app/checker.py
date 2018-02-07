@@ -1,5 +1,20 @@
 #!/usr/bin/env python3
+
+from argparse import ArgumentParser
+
+import sys
 from github import Github
+
+
+class CheckerArgumentParser(ArgumentParser):
+    def __init__(self, args):
+        super().__init__()
+        self.add_help = True
+        self.add_argument('--token', help='GitHub Token', required=True)
+        self.add_argument('--user', help='GitHub User', required=True)
+        args = self.parse_args(args)
+        self.token = args.token
+        self.user = args.user
 
 
 class Repositories:
@@ -20,7 +35,8 @@ class GithubConnector:
 
 
 class Checker:
-    def run(self):
+    def run(self, argv):
+        arguments = CheckerArgumentParser(argv)
         repositories = Repositories()
         for group in ['skipped', 'invalid', 'outdated', 'updated']:
             for repository in getattr(repositories, group):
@@ -28,4 +44,4 @@ class Checker:
 
 
 if __name__ == "__main__":
-    Checker().run()
+    Checker().run(sys.argv[1:])
