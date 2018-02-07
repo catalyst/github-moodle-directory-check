@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from github import Github
 
 
 class Repositories:
@@ -7,6 +8,15 @@ class Repositories:
         self.invalid = ['moodle-not-a-plugin']
         self.outdated = ['moodle-local_updateme']
         self.updated = ['moodle-local_published']
+
+
+class GithubConnector:
+    def __init__(self, token):
+        self.github = Github(token)
+
+    def user_repositories(self, username):
+        for repository in self.github.get_user(username).get_repos():
+            yield str(repository.name)
 
 
 class Checker:
