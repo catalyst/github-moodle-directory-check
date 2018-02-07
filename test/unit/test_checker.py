@@ -16,6 +16,6 @@ class CheckerTest(unittest.TestCase):
         self.assertIn('skipped: my-repository', output)
         self.assertIn('invalid: moodle-not-a-plugin', output)
         self.assertIn('outdated: moodle-local_updateme', output)
-        self.assertIn('ok: moodle-local_published', output)
+        self.assertIn('updated: moodle-local_published', output)
 
 
