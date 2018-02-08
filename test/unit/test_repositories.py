@@ -6,12 +6,13 @@ from app.checker import *
 
 class RepositoriesTest(unittest.TestCase):
 
-    @patch.object(GithubConnector, 'user_repositories', return_value=iter(['a', 'b', 'c', 'd']))
+    @patch.object(GithubConnector, 'user_repositories', return_value=iter([]))
     def test_it_fetches(self, mock_user_repositories):
         repositories = Repositories()
         repositories.fetch(GithubConnector('thetoken'), 'theuser')
         mock_user_repositories.assert_called_with('theuser')
-        self.assertEquals(['a'], repositories.skipped)
-        self.assertEquals(['b'], repositories.invalid)
-        self.assertEquals(['c'], repositories.outdated)
-        self.assertEquals(['d'], repositories.updated)
+
+    def test_it_detects_correct_repository_names(self):
+        self.assertFalse(Repositories.is_moodle_repository_name(''))
+        self.assertFalse(Repositories.is_moodle_repository_name('moodle-'))
+        self.assertTrue(Repositories.is_moodle_repository_name('moodle-something'))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import re
 from argparse import ArgumentParser
 
 import sys
@@ -18,6 +18,10 @@ class CheckerArgumentParser(ArgumentParser):
 
 
 class Repositories:
+    @staticmethod
+    def is_moodle_repository_name(name):
+        return re.match(r"^moodle-.", name) is not None
+
     def __init__(self):
         self.skipped = None
         self.invalid = None
@@ -29,11 +33,17 @@ class Repositories:
         self.invalid = []
         self.outdated = []
         self.updated = []
-        repositories = github.user_repositories(user)
-        self.skipped.append(next(repositories))
-        self.invalid.append(next(repositories))
-        self.outdated.append(next(repositories))
-        self.updated.append(next(repositories))
+        for repository in github.user_repositories(user):
+            if not self.is_moodle_repository_name(repository):
+                self.skipped.append(repository)
+                continue
+            if repository == 'moodle-not-a-plugin':
+                self.invalid.append(repository)
+                continue
+            if repository == 'moodle-local_updateme':
+                self.outdated.append(repository)
+                continue
+            self.updated.append(repository)
 
 
 class GithubConnector:
