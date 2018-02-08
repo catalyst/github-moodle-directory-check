@@ -19,10 +19,21 @@ class CheckerArgumentParser(ArgumentParser):
 
 class Repositories:
     def __init__(self):
-        self.skipped = ['my-repository']
-        self.invalid = ['moodle-not-a-plugin']
-        self.outdated = ['moodle-local_updateme']
-        self.updated = ['moodle-local_published']
+        self.skipped = None
+        self.invalid = None
+        self.outdated = None
+        self.updated = None
+
+    def fetch(self, github, user):
+        self.skipped = []
+        self.invalid = []
+        self.outdated = []
+        self.updated = []
+        repositories = github.user_repositories(user)
+        self.skipped.append(next(repositories))
+        self.invalid.append(next(repositories))
+        self.outdated.append(next(repositories))
+        self.updated.append(next(repositories))
 
 
 class GithubConnector:
@@ -39,6 +50,8 @@ class Checker:
     def run(argv):
         arguments = CheckerArgumentParser(argv)
         repositories = Repositories()
+        github = GithubConnector(arguments.token)
+        repositories.fetch(github, arguments.user)
         for group in ['skipped', 'invalid', 'outdated', 'updated']:
             for repository in getattr(repositories, group):
                 print('{:>8}: {}'.format(group, repository))

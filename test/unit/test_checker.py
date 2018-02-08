@@ -1,6 +1,7 @@
 import contextlib
 import unittest
 from io import StringIO
+from unittest.mock import patch
 
 from app.checker import *
 
@@ -13,7 +14,9 @@ class CheckerTest(unittest.TestCase):
         stdout = StringIO()
         stderr = StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-            Checker().run(args)
+            repositories = ['my-repository', 'moodle-not-a-plugin', 'moodle-local_updateme', 'moodle-local_published']
+            with patch.object(GithubConnector, 'user_repositories', return_value=iter(repositories)):
+                Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
 
     def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):

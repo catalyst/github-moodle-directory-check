@@ -1,17 +1,17 @@
-import contextlib
 import unittest
-from io import StringIO
+from unittest.mock import patch
 
 from app.checker import *
 
 
-class CheckerTest(unittest.TestCase):
+class RepositoriesTest(unittest.TestCase):
 
-    def test_it_has_all_repository_groups(self):
+    @patch.object(GithubConnector, 'user_repositories', return_value=iter(['a', 'b', 'c', 'd']))
+    def test_it_fetches(self, mock_user_repositories):
         repositories = Repositories()
-        self.assertIsNotNone(repositories.skipped)
-        self.assertIsNotNone(repositories.invalid)
-        self.assertIsNotNone(repositories.outdated)
-        self.assertIsNotNone(repositories.updated)
-
-
+        repositories.fetch(GithubConnector('thetoken'), 'theuser')
+        mock_user_repositories.assert_called_with('theuser')
+        self.assertEquals(['a'], repositories.skipped)
+        self.assertEquals(['b'], repositories.invalid)
+        self.assertEquals(['c'], repositories.outdated)
+        self.assertEquals(['d'], repositories.updated)
