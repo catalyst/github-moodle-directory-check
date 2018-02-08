@@ -3,6 +3,8 @@ import re
 from argparse import ArgumentParser
 
 import sys
+
+import requests
 from github import Github
 
 
@@ -53,6 +55,11 @@ class GithubConnector:
     def user_repositories(self, username):
         for repository in self.github.get_user(username).get_repos():
             yield str(repository.name)
+
+    def get_file(self, username, repository, file):
+        link = "https://github.com/" + username + "/" + repository + "/raw/HEAD/" + file
+        data = requests.get(link)
+        return data.text
 
 
 class Checker:
