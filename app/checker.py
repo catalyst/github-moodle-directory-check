@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import re
-from argparse import ArgumentParser
-
 import sys
+import urllib
+from argparse import ArgumentParser
 
 import requests
 from github import Github
@@ -22,9 +22,18 @@ class CheckerArgumentParser(ArgumentParser):
 class Repository:
     def __init__(self, name):
         self.name = name
+        self.plugin = None
+        self.github_version = None
 
     def has_moodle_repository_name(self):
         return re.match(r"^moodle-.", self.name) is not None
+
+    def fetch_github_metadata(self, github, user):
+        html = github.get_file(user, self.name, 'version.php')
+        match = re.search(r"\$plugin->version[\s]*=[\s]*['\"]?([\d\\.]+)['\"]?[\s]*;", html)
+        self.github_version = float(match.group(1))
+        match = re.search(r"\$plugin->component[\s]*=[\s]*['\"]([\w\\.]+)['\"][\s]*;", html)
+        self.plugin = match.group(1)
 
 
 class Repositories:
