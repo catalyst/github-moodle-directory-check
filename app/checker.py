@@ -19,11 +19,15 @@ class CheckerArgumentParser(ArgumentParser):
         self.user = args.user
 
 
-class Repositories:
-    @staticmethod
-    def is_moodle_repository_name(name):
-        return re.match(r"^moodle-.", name) is not None
+class Repository:
+    def __init__(self, name):
+        self.name = name
 
+    def has_moodle_repository_name(self):
+        return re.match(r"^moodle-.", self.name) is not None
+
+
+class Repositories:
     def __init__(self):
         self.skipped = None
         self.invalid = None
@@ -36,13 +40,13 @@ class Repositories:
         self.outdated = []
         self.updated = []
         for repository in github.user_repositories(user):
-            if not self.is_moodle_repository_name(repository):
+            if not repository.has_moodle_repository_name():
                 self.skipped.append(repository)
                 continue
-            if repository == 'moodle-not-a-plugin':
+            if repository.name == 'moodle-not-a-plugin':
                 self.invalid.append(repository)
                 continue
-            if repository == 'moodle-local_updateme':
+            if repository.name == 'moodle-local_updateme':
                 self.outdated.append(repository)
                 continue
             self.updated.append(repository)
@@ -54,7 +58,7 @@ class GithubConnector:
 
     def user_repositories(self, username):
         for repository in self.github.get_user(username).get_repos():
-            yield str(repository.name)
+            yield Repository(repository.name)
 
     def get_file(self, username, repository, file):
         link = "https://github.com/" + username + "/" + repository + "/raw/HEAD/" + file
@@ -71,7 +75,7 @@ class Checker:
         repositories.fetch(github, arguments.user)
         for group in ['skipped', 'invalid', 'outdated', 'updated']:
             for repository in getattr(repositories, group):
-                print('{:>8}: {}'.format(group, repository))
+                print('{:>8}: {}'.format(group, repository.name))
 
 
 if __name__ == "__main__":

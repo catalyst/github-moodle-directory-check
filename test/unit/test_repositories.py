@@ -11,8 +11,3 @@ class RepositoriesTest(unittest.TestCase):
         repositories = Repositories()
         repositories.fetch(GithubConnector('thetoken'), 'theuser')
         mock_user_repositories.assert_called_with('theuser')
-
-    def test_it_detects_correct_repository_names(self):
-        self.assertFalse(Repositories.is_moodle_repository_name(''))
-        self.assertFalse(Repositories.is_moodle_repository_name('moodle-'))
-        self.assertTrue(Repositories.is_moodle_repository_name('moodle-something'))

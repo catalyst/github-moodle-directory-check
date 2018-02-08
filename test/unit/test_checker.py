@@ -14,7 +14,12 @@ class CheckerTest(unittest.TestCase):
         stdout = StringIO()
         stderr = StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-            repositories = ['my-repository', 'moodle-not-a-plugin', 'moodle-local_updateme', 'moodle-local_published']
+            repositories = [
+                Repository('my-repository'),
+                Repository('moodle-not-a-plugin'),
+                Repository('moodle-local_updateme'),
+                Repository('moodle-local_published'),
+            ]
             with patch.object(GithubConnector, 'user_repositories', return_value=iter(repositories)):
                 Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
