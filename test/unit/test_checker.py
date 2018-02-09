@@ -11,6 +11,8 @@ class CheckerTest(unittest.TestCase):
     def mock_get_file(repository, file):
         if file != 'version.php':
             return None
+        if repository == 'moodle-not-mine':
+            return '$plugin->version="2018020915";$plugin->component="local_notmyplugin";'
         if repository == 'moodle-local_updateme':
             return '$plugin->version="2018020814.43";$plugin->component="local_ninjaturtle";'
         if repository == 'moodle-local_published':
@@ -27,6 +29,7 @@ class CheckerTest(unittest.TestCase):
             repositories = [
                 Repository('my-repository'),
                 Repository('moodle-not-a-plugin'),
+                Repository('moodle-not-mine'),
                 Repository('moodle-local_updateme'),
                 Repository('moodle-local_published'),
             ]
@@ -37,11 +40,12 @@ class CheckerTest(unittest.TestCase):
 
     def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):
         stdout, stderr = self.run_checker()
-        self.assertEquals(4, stdout.count('\n'), 'Invalid number of lines printed.')
+        self.assertEquals(5, stdout.count('\n'), 'Invalid number of lines printed.')
         self.assertIn('skipped: my-repository', stdout)
         self.assertIn('invalid: moodle-not-a-plugin', stdout)
+        self.assertIn('thirdparty: moodle-not-mine', stdout)
         self.assertIn('outdated: moodle-local_updateme', stdout)
-        self.assertIn('updated: moodle-local_published', stdout)
+        self.assertIn('uptodate: moodle-local_published', stdout)
 
     def test_it_aligns_the_group_name(self):
         stdout, stderr = self.run_checker()

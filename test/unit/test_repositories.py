@@ -19,8 +19,9 @@ class RepositoriesTest(unittest.TestCase):
         repositories.categorise_repositories([repository])
         self.assertEqual([repository], repositories.skipped)
         self.assertEqual([], repositories.invalid)
+        self.assertEqual([], repositories.thirdparty)
         self.assertEqual([], repositories.outdated)
-        self.assertEqual([], repositories.updated)
+        self.assertEqual([], repositories.uptodate)
 
     def test_it_marks_as_invalid(self):
         repository = Repository('moodle-local_ninja')
@@ -29,5 +30,6 @@ class RepositoriesTest(unittest.TestCase):
             repositories.categorise_repositories([repository])
         self.assertEqual([], repositories.skipped)
         self.assertEqual([repository], repositories.invalid)
+        self.assertEqual([], repositories.thirdparty)
         self.assertEqual([], repositories.outdated)
-        self.assertEqual([], repositories.updated)
+        self.assertEqual([], repositories.uptodate)
