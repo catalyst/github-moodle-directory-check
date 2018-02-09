@@ -8,6 +8,16 @@ from app.checker import *
 
 class CheckerTest(unittest.TestCase):
     @staticmethod
+    def mock_get_file(repository, file):
+        if file != 'version.php':
+            return None
+        if repository == 'moodle-local_updateme':
+            return '$plugin->version="2018020814.43";$plugin->component="local_ninjaturtle";'
+        if repository == 'moodle-local_published':
+            return '$plugin->version="2018020913.29";$plugin->component="local_ninjaturtle";'
+        return None
+
+    @staticmethod
     def run_checker(args=None):
         if args is None:
             args = ['--token', 'thetoken', '--user', 'theuser']
@@ -21,7 +31,8 @@ class CheckerTest(unittest.TestCase):
                 Repository('moodle-local_published'),
             ]
             with patch.object(GithubConnector, 'user_repositories', return_value=iter(repositories)):
-                Checker().run(args)
+                with patch.object(GithubConnector, 'get_file', side_effect=CheckerTest.mock_get_file):
+                    Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
 
     def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):

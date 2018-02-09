@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import re
 import sys
-import urllib
 from argparse import ArgumentParser
 
 import requests
@@ -28,12 +27,25 @@ class Repository:
     def has_moodle_repository_name(self):
         return re.match(r"^moodle-.", self.name) is not None
 
-    def fetch_github_metadata(self, github, user):
-        html = github.get_file(user, self.name, 'version.php')
+    def fetch_github_metadata(self, github):
+        self.plugin = None
+        self.github_version = None
+        html = github.get_file(self.name, 'version.php')
+        if html is None:
+            return
         match = re.search(r"\$plugin->version[\s]*=[\s]*['\"]?([\d\\.]+)['\"]?[\s]*;", html)
-        self.github_version = float(match.group(1))
+        if match is not None:
+            self.github_version = float(match.group(1))
         match = re.search(r"\$plugin->component[\s]*=[\s]*['\"]([\w\\.]+)['\"][\s]*;", html)
-        self.plugin = match.group(1)
+        if match is not None:
+            self.plugin = match.group(1)
+
+    def has_valid_metadata(self):
+        if self.plugin is None:
+            return False
+        if self.github_version is None:
+            return False
+        return True
 
 
 class Repositories:
@@ -44,8 +56,8 @@ class Repositories:
         self.outdated = None
         self.updated = None
 
-    def fetch(self, user):
-        repositories = self.github.user_repositories(user)
+    def fetch(self):
+        repositories = self.github.user_repositories()
         self.categorise_repositories(repositories)
 
     def categorise_repositories(self, repositories):
@@ -57,7 +69,8 @@ class Repositories:
             if not repository.has_moodle_repository_name():
                 self.skipped.append(repository)
                 continue
-            if repository.name == 'moodle-not-a-plugin':
+            repository.fetch_github_metadata(self.github)
+            if not repository.has_valid_metadata():
                 self.invalid.append(repository)
                 continue
             if repository.name == 'moodle-local_updateme':
@@ -67,16 +80,19 @@ class Repositories:
 
 
 class GithubConnector:
-    def __init__(self, token):
+    def __init__(self, token, repository_owner):
         self.github = Github(token)
+        self.owner = repository_owner
 
-    def user_repositories(self, username):
-        for repository in self.github.get_user(username).get_repos():
+    def user_repositories(self):
+        for repository in self.github.get_user(self.owner).get_repos():
             yield Repository(repository.name)
 
-    def get_file(self, username, repository, file):
-        link = "https://github.com/" + username + "/" + repository + "/raw/HEAD/" + file
+    def get_file(self, repository, file):
+        link = "https://github.com/" + self.owner + "/" + repository + "/raw/HEAD/" + file
         data = requests.get(link)
+        if data.status_code != 200:
+            return None
         return data.text
 
 
@@ -84,9 +100,9 @@ class Checker:
     @staticmethod
     def run(argv):
         arguments = CheckerArgumentParser(argv)
-        github = GithubConnector(arguments.token)
+        github = GithubConnector(arguments.token, arguments.user)
         repositories = Repositories(github)
-        repositories.fetch(arguments.user)
+        repositories.fetch()
         for group in ['skipped', 'invalid', 'outdated', 'updated']:
             for repository in getattr(repositories, group):
                 print('{:>8}: {}'.format(group, repository.name))
