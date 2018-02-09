@@ -37,18 +37,23 @@ class Repository:
 
 
 class Repositories:
-    def __init__(self):
+    def __init__(self, github):
+        self.github = github
         self.skipped = None
         self.invalid = None
         self.outdated = None
         self.updated = None
 
-    def fetch(self, github, user):
+    def fetch(self, user):
+        repositories = self.github.user_repositories(user)
+        self.categorise_repositories(repositories)
+
+    def categorise_repositories(self, repositories):
         self.skipped = []
         self.invalid = []
         self.outdated = []
         self.updated = []
-        for repository in github.user_repositories(user):
+        for repository in repositories:
             if not repository.has_moodle_repository_name():
                 self.skipped.append(repository)
                 continue
@@ -79,9 +84,9 @@ class Checker:
     @staticmethod
     def run(argv):
         arguments = CheckerArgumentParser(argv)
-        repositories = Repositories()
         github = GithubConnector(arguments.token)
-        repositories.fetch(github, arguments.user)
+        repositories = Repositories(github)
+        repositories.fetch(arguments.user)
         for group in ['skipped', 'invalid', 'outdated', 'updated']:
             for repository in getattr(repositories, group):
                 print('{:>8}: {}'.format(group, repository.name))
