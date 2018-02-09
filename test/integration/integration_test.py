@@ -4,7 +4,7 @@ import unittest
 from app.checker import *
 
 
-class GithubConnectorTest(unittest.TestCase):
+class IntegrationTest(unittest.TestCase):
 
     def test_it_fetches_repositories(self):
         should_find = 'github-moodle-directory-check'
