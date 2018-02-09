@@ -12,10 +12,10 @@ class CheckerArgumentParser(ArgumentParser):
         super().__init__()
         self.add_help = True
         self.add_argument('--token', help='GitHub Token', required=True)
-        self.add_argument('--user', help='GitHub User', required=True)
+        self.add_argument('--owner', help="Username of repositories' owner to check in GitHub", required=True)
         args = self.parse_args(args)
         self.token = args.token
-        self.user = args.user
+        self.owner = args.owner
 
 
 class Repository:
@@ -57,7 +57,7 @@ class Repositories:
         self.updated = None
 
     def fetch(self):
-        repositories = self.github.user_repositories()
+        repositories = self.github.fetch_repositories()
         self.categorise_repositories(repositories)
 
     def categorise_repositories(self, repositories):
@@ -84,7 +84,7 @@ class GithubConnector:
         self.github = Github(token)
         self.owner = repository_owner
 
-    def user_repositories(self):
+    def fetch_repositories(self):
         for repository in self.github.get_user(self.owner).get_repos():
             yield Repository(repository.name)
 
@@ -100,7 +100,7 @@ class Checker:
     @staticmethod
     def run(argv):
         arguments = CheckerArgumentParser(argv)
-        github = GithubConnector(arguments.token, arguments.user)
+        github = GithubConnector(arguments.token, arguments.owner)
         repositories = Repositories(github)
         repositories.fetch()
         for group in ['skipped', 'invalid', 'outdated', 'updated']:

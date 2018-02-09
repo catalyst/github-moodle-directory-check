@@ -6,10 +6,10 @@ from app.checker import *
 
 class GithubConnectorTest(unittest.TestCase):
 
-    def test_it_gets_user_repositories(self):
+    def test_it_fetches_repositories(self):
         should_find = 'github-moodle-directory-check'
         github = GithubConnector(os.environ.get('TEST_GITHUB_TOKEN'), 'catalyst')
-        for repository in github.user_repositories():
+        for repository in github.fetch_repositories():
             if repository.name == should_find:
                 return
         self.fail('Repository not found: ' + should_find)

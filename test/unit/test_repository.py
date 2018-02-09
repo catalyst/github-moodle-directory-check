@@ -31,7 +31,7 @@ class RepositoryTest(unittest.TestCase):
         for versionphp in versionphps:
             repository = Repository('moodle-local_ninja')
             with patch.object(GithubConnector, 'get_file', return_value=versionphp):
-                repository.fetch_github_metadata(GithubConnector('thetoken', 'the_user'))
+                repository.fetch_github_metadata(GithubConnector('thetoken', 'the_owner'))
             self.assertEquals(2018020814.43, repository.github_version)
             self.assertEquals('local_ninjaturtle', repository.plugin)
 
@@ -46,7 +46,7 @@ class RepositoryTest(unittest.TestCase):
             expect_version, expect_component, versionphp = test
             repository = Repository('moodle-local_ninja')
             with patch.object(GithubConnector, 'get_file', return_value=versionphp):
-                repository.fetch_github_metadata(GithubConnector('thetoken', 'the_user'))
+                repository.fetch_github_metadata(GithubConnector('thetoken', 'the_owner'))
             self.assertEquals(expect_version, repository.github_version)
             self.assertEquals(expect_component, repository.plugin)
 

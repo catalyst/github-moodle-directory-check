@@ -20,7 +20,7 @@ class CheckerTest(unittest.TestCase):
     @staticmethod
     def run_checker(args=None):
         if args is None:
-            args = ['--token', 'thetoken', '--user', 'theuser']
+            args = ['--token', 'thetoken', '--owner', 'theowner']
         stdout = StringIO()
         stderr = StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
@@ -30,7 +30,7 @@ class CheckerTest(unittest.TestCase):
                 Repository('moodle-local_updateme'),
                 Repository('moodle-local_published'),
             ]
-            with patch.object(GithubConnector, 'user_repositories', return_value=iter(repositories)):
+            with patch.object(GithubConnector, 'fetch_repositories', return_value=iter(repositories)):
                 with patch.object(GithubConnector, 'get_file', side_effect=CheckerTest.mock_get_file):
                     Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
