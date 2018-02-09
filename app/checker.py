@@ -40,7 +40,7 @@ class Repository:
         if match is not None:
             self.plugin = match.group(1)
 
-    def has_valid_metadata(self):
+    def has_valid_github_metadata(self):
         if self.plugin is None:
             return False
         if self.github_version is None:
@@ -70,7 +70,7 @@ class Repositories:
                 self.skipped.append(repository)
                 continue
             repository.fetch_github_metadata(self.github)
-            if not repository.has_valid_metadata():
+            if not repository.has_valid_github_metadata():
                 self.invalid.append(repository)
                 continue
             if repository.name == 'moodle-local_updateme':

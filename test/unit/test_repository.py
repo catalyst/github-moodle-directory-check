@@ -54,13 +54,13 @@ class RepositoryTest(unittest.TestCase):
         repository = Repository('something')
         repository.plugin = None
         repository.github_version = None
-        self.assertFalse(repository.has_valid_metadata(), 'no data')
+        self.assertFalse(repository.has_valid_github_metadata(), 'no data')
         repository.plugin = 'a'
         repository.github_version = None
-        self.assertFalse(repository.has_valid_metadata(), 'only plugin')
+        self.assertFalse(repository.has_valid_github_metadata(), 'only plugin')
         repository.plugin = None
         repository.github_version = 123.4
-        self.assertFalse(repository.has_valid_metadata(), 'only version')
+        self.assertFalse(repository.has_valid_github_metadata(), 'only version')
         repository.plugin = 'a'
         repository.github_version = 123.4
-        self.assertTrue(repository.has_valid_metadata(), 'all data')
+        self.assertTrue(repository.has_valid_github_metadata(), 'all data')
