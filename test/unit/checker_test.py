@@ -2,73 +2,34 @@ import contextlib
 import unittest
 from io import StringIO
 from unittest.mock import patch
-from urllib import parse
 
 from app.checker import *
-
-
-class CheckerTestMockResponse:
-    def __init__(self, plugin):
-        (maintainer) = CheckerTest.mock_requests_get_plugin_data(plugin)
-        if maintainer is None:
-            self.status_code = 404
-            self.text = 'Not found.'
-        else:
-            maintainer = '<div class="maintainedby"><span class="name">{}</span></div>'.format(maintainer)
-            self.status_code = 200
-            self.text = '<html>{}</html>'.format(maintainer)
+from test.unit.mock_integration import *
 
 
 class CheckerTest(unittest.TestCase):
     @staticmethod
-    def mock_requests_get(url):
-        query = parse.urlparse(url).query
-        plugin = parse.parse_qs(query)['plugin'][0]
-        return CheckerTestMockResponse(plugin)
+    def mock_fetch_repositories():
+        repositories = [
+            Repository('my-repository'),
+            Repository('moodle-not-a-plugin'),
+            Repository('moodle-new-plugin'),
+            Repository('moodle-not-mine'),
+            Repository('moodle-local_updateme'),
+            Repository('moodle-local_published'),
+        ]
+        return iter(repositories)
 
     @staticmethod
-    def mock_requests_get_plugin_data(plugin):
-        if plugin == 'local_newplugin':
-            return None
-        if plugin == 'local_notmyplugin':
-            return 'Someone Else'
-        if plugin == 'local_ninjaturtle':
-            return 'Catalyst IT'
-        raise Exception('Invalid mock_requests_get_plugin_data for: ' + plugin)
-
-    @staticmethod
-    def mock_get_file(repository, file):
-        if file != 'version.php':
-            return None
-        if repository == 'moodle-new-plugin':
-            return '$plugin->version="2018021211.58";$plugin->component="local_newplugin";'
-        if repository == 'moodle-not-mine':
-            return '$plugin->version="2018020915";$plugin->component="local_notmyplugin";'
-        if repository == 'moodle-local_updateme':
-            return '$plugin->version="2018020814.43";$plugin->component="local_ninjaturtle";'
-        if repository == 'moodle-local_published':
-            return '$plugin->version="2018020913.29";$plugin->component="local_ninjaturtle";'
-        return None
-
-    @staticmethod
-    def run_checker(args=None):
+    @patch.object(requests, 'get', side_effect=MockRequests.get)
+    def run_checker(mock_get, args=None):
         if args is None:
             args = ['--token', 'thetoken', '--owner', 'theowner', '--maintainer', 'Catalyst IT']
         stdout = StringIO()
         stderr = StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-            repositories = [
-                Repository('my-repository'),
-                Repository('moodle-not-a-plugin'),
-                Repository('moodle-new-plugin'),
-                Repository('moodle-not-mine'),
-                Repository('moodle-local_updateme'),
-                Repository('moodle-local_published'),
-            ]
-            with patch.object(GithubConnector, 'fetch_repositories', return_value=iter(repositories)):
-                with patch.object(GithubConnector, 'get_file', side_effect=CheckerTest.mock_get_file):
-                    with patch.object(requests, 'get', side_effect=CheckerTest.mock_requests_get):
-                        Checker().run(args)
+            with patch.object(GithubConnector, 'fetch_repositories', side_effect=CheckerTest.mock_fetch_repositories):
+                Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
 
     def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):
