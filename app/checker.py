@@ -54,6 +54,7 @@ class Repositories:
         self.github = github
         self.skipped = None
         self.invalid = None
+        self.unpublished = None
         self.thirdparty = None
         self.outdated = None
         self.uptodate = None
@@ -65,6 +66,7 @@ class Repositories:
     def categorise_repositories(self, repositories):
         self.skipped = []
         self.invalid = []
+        self.unpublished = []
         self.thirdparty = []
         self.outdated = []
         self.uptodate = []
@@ -75,6 +77,9 @@ class Repositories:
             repository.fetch_github_metadata(self.github)
             if not repository.has_valid_github_metadata():
                 self.invalid.append(repository)
+                continue
+            if repository.name == 'moodle-new-plugin':
+                self.unpublished.append(repository)
                 continue
             if repository.name == 'moodle-not-mine':
                 self.thirdparty.append(repository)
@@ -144,9 +149,9 @@ class Checker:
         github = GithubConnector(arguments.token, arguments.owner)
         repositories = Repositories(github)
         repositories.fetch()
-        for group in ['skipped', 'invalid', 'thirdparty', 'outdated', 'uptodate']:
+        for group in ['skipped', 'invalid', 'unpublished', 'thirdparty', 'outdated', 'uptodate']:
             for repository in getattr(repositories, group):
-                print('{:>10}: {}'.format(group, repository.name))
+                print('{:>12}: {}'.format(group, repository.name))
 
 
 if __name__ == "__main__":
