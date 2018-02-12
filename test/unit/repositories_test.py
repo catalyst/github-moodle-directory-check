@@ -9,13 +9,13 @@ class RepositoriesTest(unittest.TestCase):
     @patch.object(GithubConnector, 'fetch_repositories', return_value=iter([]))
     def test_it_fetches(self, mock_fetch_repositories):
         github = GithubConnector('thetoken', 'theowner')
-        repositories = Repositories(github)
+        repositories = Repositories(github, 'The Owner')
         repositories.fetch()
         mock_fetch_repositories.assert_called_with()
 
     def test_it_marks_as_skipped(self):
         repository = Repository('not-a-moodle-thing')
-        repositories = Repositories(None)
+        repositories = Repositories(None, 'Me')
         repositories.categorise_repositories([repository])
         self.assertEqual([repository], repositories.skipped)
         self.assertEqual([], repositories.invalid)
@@ -26,7 +26,7 @@ class RepositoriesTest(unittest.TestCase):
 
     def test_it_marks_as_invalid(self):
         repository = Repository('moodle-local_ninja')
-        repositories = Repositories(GithubConnector('token', 'owner'))
+        repositories = Repositories(GithubConnector('token', 'owner'), 'Me')
         with patch.object(GithubConnector, 'get_file', return_value=None):
             repositories.categorise_repositories([repository])
         self.assertEqual([], repositories.skipped)

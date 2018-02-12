@@ -52,8 +52,9 @@ class Repository:
 
 
 class Repositories:
-    def __init__(self, github):
+    def __init__(self, github, maintainer):
         self.github = github
+        self.maintainer = maintainer
         self.skipped = None
         self.invalid = None
         self.unpublished = None
@@ -88,12 +89,11 @@ class Repositories:
 
         directory = MoodlePluginDirectoryPage(repository.plugin)
         directory.fetch()
-
         if not directory.is_published():
             self.unpublished.append(repository)
             return
 
-        if repository.name == 'moodle-not-mine':
+        if not directory.has_maintainer(self.maintainer):
             self.thirdparty.append(repository)
             return
 
@@ -161,7 +161,7 @@ class Checker:
     def run(argv):
         arguments = CheckerArgumentParser(argv)
         github = GithubConnector(arguments.token, arguments.owner)
-        repositories = Repositories(github)
+        repositories = Repositories(github, arguments.maintainer)
         repositories.fetch()
         for group in ['skipped', 'invalid', 'unpublished', 'thirdparty', 'outdated', 'uptodate']:
             for repository in getattr(repositories, group):
