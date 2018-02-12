@@ -70,17 +70,24 @@ class Repositories:
         self.thirdparty = []
         self.outdated = []
         self.uptodate = []
+
         for repository in repositories:
             if not repository.has_moodle_repository_name():
                 self.skipped.append(repository)
                 continue
+
             repository.fetch_github_metadata(self.github)
             if not repository.has_valid_github_metadata():
                 self.invalid.append(repository)
                 continue
-            if repository.name == 'moodle-new-plugin':
+
+            directory = MoodlePluginDirectoryPage(repository.plugin)
+            directory.fetch()
+
+            if not directory.is_published():
                 self.unpublished.append(repository)
                 continue
+
             if repository.name == 'moodle-not-mine':
                 self.thirdparty.append(repository)
                 continue
@@ -114,10 +121,10 @@ class MoodlePluginDirectoryPage:
         self.pyquery = None
 
     def fetch(self):
-        url = "https://moodle.org/plugins/pluginversions.php?plugin=" + self.plugin
-        data = requests.get(url)
         self.html = None
         self.pyquery = None
+        url = "https://moodle.org/plugins/pluginversions.php?plugin=" + self.plugin
+        data = requests.get(url)
         if data.status_code == 200:
             self.html = data.text
             self.pyquery = PyQuery(self.html)
@@ -137,6 +144,9 @@ class MoodlePluginDirectoryPage:
             if version == text:
                 return True
         return False
+
+    def is_published(self):
+        return self.html is not None
 
 
 class Checker:

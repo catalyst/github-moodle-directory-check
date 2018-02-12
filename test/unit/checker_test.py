@@ -2,11 +2,40 @@ import contextlib
 import unittest
 from io import StringIO
 from unittest.mock import patch
+from urllib import parse
 
 from app.checker import *
 
 
+class CheckerTestMockResponse:
+    def __init__(self, plugin):
+        (maintainer) = CheckerTest.mock_requests_get_plugin_data(plugin)
+        if maintainer is None:
+            self.status_code = 404
+            self.text = 'Not found.'
+        else:
+            maintainer = '<div class="maintainedby"><span class="name">{}</span></div>'.format(maintainer)
+            self.status_code = 200
+            self.text = '<html>{}</html>'.format(maintainer)
+
+
 class CheckerTest(unittest.TestCase):
+    @staticmethod
+    def mock_requests_get(url):
+        query = parse.urlparse(url).query
+        plugin = parse.parse_qs(query)['plugin'][0]
+        return CheckerTestMockResponse(plugin)
+
+    @staticmethod
+    def mock_requests_get_plugin_data(plugin):
+        if plugin == 'local_newplugin':
+            return None
+        if plugin == 'local_notmyplugin':
+            return 'Someone Else'
+        if plugin == 'local_ninjaturtle':
+            return 'Catalyst IT'
+        raise Exception('Invalid mock_requests_get_plugin_data for: ' + plugin)
+
     @staticmethod
     def mock_get_file(repository, file):
         if file != 'version.php':
@@ -38,7 +67,8 @@ class CheckerTest(unittest.TestCase):
             ]
             with patch.object(GithubConnector, 'fetch_repositories', return_value=iter(repositories)):
                 with patch.object(GithubConnector, 'get_file', side_effect=CheckerTest.mock_get_file):
-                    Checker().run(args)
+                    with patch.object(requests, 'get', side_effect=CheckerTest.mock_requests_get):
+                        Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
 
     def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):
