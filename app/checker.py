@@ -72,29 +72,34 @@ class Repositories:
         self.uptodate = []
 
         for repository in repositories:
-            if not repository.has_moodle_repository_name():
-                self.skipped.append(repository)
-                continue
+            self.categorise_repository(repository)
 
-            repository.fetch_github_metadata(self.github)
-            if not repository.has_valid_github_metadata():
-                self.invalid.append(repository)
-                continue
+    def categorise_repository(self, repository):
+        if not repository.has_moodle_repository_name():
+            self.skipped.append(repository)
+            return
 
-            directory = MoodlePluginDirectoryPage(repository.plugin)
-            directory.fetch()
+        repository.fetch_github_metadata(self.github)
+        if not repository.has_valid_github_metadata():
+            self.invalid.append(repository)
+            return
 
-            if not directory.is_published():
-                self.unpublished.append(repository)
-                continue
+        directory = MoodlePluginDirectoryPage(repository.plugin)
+        directory.fetch()
 
-            if repository.name == 'moodle-not-mine':
-                self.thirdparty.append(repository)
-                continue
-            if repository.name == 'moodle-local_updateme':
-                self.outdated.append(repository)
-                continue
-            self.uptodate.append(repository)
+        if not directory.is_published():
+            self.unpublished.append(repository)
+            return
+
+        if repository.name == 'moodle-not-mine':
+            self.thirdparty.append(repository)
+            return
+
+        if repository.name == 'moodle-local_updateme':
+            self.outdated.append(repository)
+            return
+
+        self.uptodate.append(repository)
 
 
 class GithubConnector:
