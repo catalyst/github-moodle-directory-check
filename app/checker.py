@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 
 import requests
 from github import Github
+from pyquery import PyQuery
 
 
 class CheckerArgumentParser(ArgumentParser):
@@ -99,6 +100,41 @@ class GithubConnector:
         if data.status_code != 200:
             return None
         return data.text
+
+
+class MoodlePluginDirectoryPageException(Exception):
+    pass
+
+
+class MoodlePluginDirectoryPage:
+    def __init__(self, plugin):
+        self.plugin = plugin
+        self.html = None
+        self.pyquery = None
+
+    def fetch(self):
+        url = "https://moodle.org/plugins/pluginversions.php?plugin=" + self.plugin
+        data = requests.get(url)
+        if data.status_code != 200:
+            raise MoodlePluginDirectoryPageException('Status {} on: {}'.format(data.status_code, url))
+        self.html = data.text
+        self.pyquery = PyQuery(self.html)
+
+    def has_maintainer(self, name):
+        elements = self.pyquery('div.maintainedby span.name')
+        for link in elements:
+            if name == link.text:
+                return True
+        return False
+
+    def has_version(self, version):
+        version = str(version)
+        elements = self.pyquery('div.versions-items h4')
+        for div in elements:
+            text = div.text.strip()
+            if version == text:
+                return True
+        return False
 
 
 class Checker:

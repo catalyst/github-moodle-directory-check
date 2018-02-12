@@ -19,7 +19,25 @@ class IntegrationTest(unittest.TestCase):
         readme = github.get_file('github-moodle-directory-check', 'README.md')
         self.assertIn('# GitHub & Moodle Plugin Directory', readme)
 
-    def test_it_returns_null_if_cannot_fetch_a_file_from_github(self):
+    def test_it_returns_none_if_cannot_fetch_a_file_from_github(self):
         github = GithubConnector(os.environ.get('TEST_GITHUB_TOKEN'), 'some-invalid-username')
         got = github.get_file('some-invalid-repository', 'some-invalid-file')
         self.assertIsNone(got)
+
+    def test_it_fetches_metadata_from_moodle_plugin_directory(self):
+        directory = MoodlePluginDirectoryPage('auth_saml2')
+        directory.fetch()
+        self.assertIsNotNone(directory.html)
+        self.assertTrue(directory.has_maintainer('Catalyst IT'))
+        self.assertFalse(directory.has_maintainer('John Doe'))
+        self.assertFalse(directory.has_version('1982050318'))
+
+    def test_it_throws_an_exception_if_cannot_fetch_metadata_from_moodle_plugin_directory(self):
+        directory = MoodlePluginDirectoryPage('someinvalidplugin')
+        try:
+            directory.fetch()
+            self.fail('Exception expected.')
+        except MoodlePluginDirectoryPageException as exception:
+            exception = str(exception)
+            self.assertIn('404', exception)
+            self.assertIn('plugin=someinvalidplugin', exception)
