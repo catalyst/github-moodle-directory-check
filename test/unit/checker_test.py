@@ -53,7 +53,7 @@ class CheckerTest(unittest.TestCase):
     @staticmethod
     def run_checker(args=None):
         if args is None:
-            args = ['--token', 'thetoken', '--owner', 'theowner']
+            args = ['--token', 'thetoken', '--owner', 'theowner', '--maintainer', 'Catalyst IT']
         stdout = StringIO()
         stderr = StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):

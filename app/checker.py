@@ -14,9 +14,11 @@ class CheckerArgumentParser(ArgumentParser):
         self.add_help = True
         self.add_argument('--token', help='GitHub Token', required=True)
         self.add_argument('--owner', help="Username of repositories' owner to check in GitHub", required=True)
+        self.add_argument('--maintainer', help="Maintainer name on Moodle Plugin Directory", required=True)
         args = self.parse_args(args)
         self.token = args.token
         self.owner = args.owner
+        self.maintainer = args.maintainer
 
 
 class Repository:
