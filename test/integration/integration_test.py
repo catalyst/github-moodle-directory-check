@@ -32,12 +32,10 @@ class IntegrationTest(unittest.TestCase):
         self.assertFalse(directory.has_maintainer('John Doe'))
         self.assertFalse(directory.has_version('1982050318'))
 
-    def test_it_throws_an_exception_if_cannot_fetch_metadata_from_moodle_plugin_directory(self):
+    def test_it_returns_none_if_cannot_fetch_metadata_from_moodle_plugin_directory(self):
         directory = MoodlePluginDirectoryPage('someinvalidplugin')
-        try:
-            directory.fetch()
-            self.fail('Exception expected.')
-        except MoodlePluginDirectoryPageException as exception:
-            exception = str(exception)
-            self.assertIn('404', exception)
-            self.assertIn('plugin=someinvalidplugin', exception)
+        directory.text = 'something'
+        directory.pyquery = 'something'
+        directory.fetch()
+        self.assertIsNone(directory.html)
+        self.assertIsNone(directory.pyquery)

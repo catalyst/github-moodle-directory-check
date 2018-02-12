@@ -107,10 +107,6 @@ class GithubConnector:
         return data.text
 
 
-class MoodlePluginDirectoryPageException(Exception):
-    pass
-
-
 class MoodlePluginDirectoryPage:
     def __init__(self, plugin):
         self.plugin = plugin
@@ -120,10 +116,11 @@ class MoodlePluginDirectoryPage:
     def fetch(self):
         url = "https://moodle.org/plugins/pluginversions.php?plugin=" + self.plugin
         data = requests.get(url)
-        if data.status_code != 200:
-            raise MoodlePluginDirectoryPageException('Status {} on: {}'.format(data.status_code, url))
-        self.html = data.text
-        self.pyquery = PyQuery(self.html)
+        self.html = None
+        self.pyquery = None
+        if data.status_code == 200:
+            self.html = data.text
+            self.pyquery = PyQuery(self.html)
 
     def has_maintainer(self, name):
         elements = self.pyquery('div.maintainedby span.name')
