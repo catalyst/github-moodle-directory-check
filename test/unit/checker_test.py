@@ -44,6 +44,19 @@ class CheckerTest(unittest.TestCase):
         self.assertIn('outdated: moodle-local_updateme', stdout)
         self.assertIn('uptodate: moodle-local_published', stdout)
 
+    def test_it_shows_verbose_messages(self):
+        stdout, stderr = self.run_checker(['-v'])
+        stderr = stderr.strip().split('\n')
+        self.assertGreaterEqual(len(stderr), 6)
+        stderr = iter(stderr)
+        self.assertIn('GitHub for: theowner', next(stderr))
+        self.assertIn('Analysing: my-repository', next(stderr))
+        self.assertIn('Analysing: moodle-not-a-plugin', next(stderr))
+        self.assertIn('Analysing: moodle-new-plugin', next(stderr))
+        self.assertIn('Analysing: moodle-not-mine', next(stderr))
+        self.assertIn('Analysing: moodle-local_updateme', next(stderr))
+        self.assertIn('Analysing: moodle-local_published', next(stderr))
+
     def test_it_aligns_the_group_name(self):
         stdout, stderr = self.run_checker()
         lines = stdout.strip('\n').split('\n')
@@ -62,7 +75,8 @@ class CheckerTest(unittest.TestCase):
         stdout = stdout.strip().split('\n')
         self.assertGreaterEqual(len(stdout), 1)
         stdout = stdout[0]
-        expected = '.' * len(list(CheckerTest.mock_fetch_repositories()))
+        # One dot for fetching repositories on GitHub plus one for each repository
+        expected = '.' * (len(list(CheckerTest.mock_fetch_repositories())) + 1)
         self.assertEquals(stdout, expected)
 
     def test_it_shows_help_if_missing_parameters(self):

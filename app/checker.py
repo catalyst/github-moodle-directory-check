@@ -67,6 +67,7 @@ class Repositories:
         self.uptodate = None
 
     def fetch(self):
+        Checker.debug('Fetching repositories on GitHub for: ' + self.github.owner)
         repositories = self.github.fetch_repositories()
         self.categorise_repositories(repositories)
 
@@ -79,7 +80,7 @@ class Repositories:
         self.uptodate = []
 
         for repository in repositories:
-            Checker.debug('.')
+            Checker.debug('Analysing: ' + repository.name)
             self.categorise_repository(repository)
         Checker.debug_end()
 
@@ -116,7 +117,6 @@ class GithubConnector:
         self.owner = repository_owner
 
     def fetch_repositories(self):
-        Checker.debug('.')
         for repository in self.github.get_user(self.owner).get_repos():
             yield Repository(repository.name)
 
@@ -164,22 +164,26 @@ class MoodlePluginDirectoryPage:
 
 
 class Checker:
-    quiet = False
+    show_dots = False
+    show_debug = False
 
     @staticmethod
     def debug(message):
-        if not Checker.quiet:
-            print(message, end='')
+        if Checker.show_dots:
+            print('.', end='')
+        if Checker.show_debug:
+            print(message, file=sys.stderr)
 
     @staticmethod
     def debug_end():
-        if not Checker.quiet:
+        if Checker.show_dots:
             print(end='\n\n')
 
     @staticmethod
     def run(argv):
         arguments = CheckerArgumentParser(argv)
-        Checker.quiet = arguments.quiet
+        Checker.show_dots = not arguments.quiet and not arguments.verbose
+        Checker.show_debug = not arguments.quiet and arguments.verbose
         github = GithubConnector(arguments.token, arguments.owner)
         repositories = Repositories(github, arguments.maintainer)
         repositories.fetch()
