@@ -21,20 +21,22 @@ class CheckerTest(unittest.TestCase):
         return iter(repositories)
 
     @staticmethod
-    @patch.object(requests, 'get', side_effect=MockRequests.get)
-    def run_checker(mock_get, args=None):
+    def run_checker(extra_args=None, args=None):
         if args is None:
             args = ['--token', 'thetoken', '--owner', 'theowner', '--maintainer', 'Catalyst IT']
+        if extra_args is not None:
+            args += extra_args
         stdout = StringIO()
         stderr = StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
             with patch.object(GithubConnector, 'fetch_repositories', side_effect=CheckerTest.mock_fetch_repositories):
-                Checker().run(args)
+                with patch.object(requests, 'get', side_effect=MockRequests.get):
+                    Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
 
     def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):
-        stdout, stderr = self.run_checker()
-        self.assertEquals(8, stdout.count('\n'), 'Invalid number of lines printed.')
+        stdout, stderr = self.run_checker(['-q'])
+        self.assertEquals(6, stdout.count('\n'), 'Invalid number of lines printed:\n' + stdout)
         self.assertIn('skipped: my-repository', stdout)
         self.assertIn('invalid: moodle-not-a-plugin', stdout)
         self.assertIn('unpublished: moodle-new-plugin', stdout)
@@ -65,5 +67,5 @@ class CheckerTest(unittest.TestCase):
 
     def test_it_shows_help_if_missing_parameters(self):
         with self.assertRaises(SystemExit):
-            stdout, stderr = self.run_checker([])
+            stdout, stderr = self.run_checker([], [])
             self.assertIn('arguments are required', stderr)

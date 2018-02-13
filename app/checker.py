@@ -79,10 +79,9 @@ class Repositories:
         self.uptodate = []
 
         for repository in repositories:
-            print(end='.')
+            Checker.debug('.')
             self.categorise_repository(repository)
-        print()
-        print()
+        Checker.debug_end()
 
     def categorise_repository(self, repository):
         if not repository.has_moodle_repository_name():
@@ -117,7 +116,7 @@ class GithubConnector:
         self.owner = repository_owner
 
     def fetch_repositories(self):
-        print(end='.')
+        Checker.debug('.')
         for repository in self.github.get_user(self.owner).get_repos():
             yield Repository(repository.name)
 
@@ -165,9 +164,22 @@ class MoodlePluginDirectoryPage:
 
 
 class Checker:
+    quiet = False
+
+    @staticmethod
+    def debug(message):
+        if not Checker.quiet:
+            print(message, end='')
+
+    @staticmethod
+    def debug_end():
+        if not Checker.quiet:
+            print(end='\n\n')
+
     @staticmethod
     def run(argv):
         arguments = CheckerArgumentParser(argv)
+        Checker.quiet = arguments.quiet
         github = GithubConnector(arguments.token, arguments.owner)
         repositories = Repositories(github, arguments.maintainer)
         repositories.fetch()
