@@ -34,7 +34,7 @@ class CheckerTest(unittest.TestCase):
 
     def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):
         stdout, stderr = self.run_checker()
-        self.assertEquals(6, stdout.count('\n'), 'Invalid number of lines printed.')
+        self.assertEquals(8, stdout.count('\n'), 'Invalid number of lines printed.')
         self.assertIn('skipped: my-repository', stdout)
         self.assertIn('invalid: moodle-not-a-plugin', stdout)
         self.assertIn('unpublished: moodle-new-plugin', stdout)
@@ -48,10 +48,20 @@ class CheckerTest(unittest.TestCase):
         position = None
         for line in lines:
             found = line.find(':')
+            if found == -1:
+                continue
             if position is None:
                 position = found
             else:
                 self.assertEquals(position, found)
+
+    def test_it_shows_dots_for_each_repository_processed(self):
+        stdout, stderr = self.run_checker()
+        stdout = stdout.strip().split('\n')
+        self.assertGreaterEqual(len(stdout), 1)
+        stdout = stdout[0]
+        expected = '.' * len(list(CheckerTest.mock_fetch_repositories()))
+        self.assertEquals(stdout, expected)
 
     def test_it_shows_help_if_missing_parameters(self):
         with self.assertRaises(SystemExit):

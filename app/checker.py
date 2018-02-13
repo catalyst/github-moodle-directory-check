@@ -75,7 +75,10 @@ class Repositories:
         self.uptodate = []
 
         for repository in repositories:
+            print(end='.')
             self.categorise_repository(repository)
+        print()
+        print()
 
     def categorise_repository(self, repository):
         if not repository.has_moodle_repository_name():
@@ -110,6 +113,7 @@ class GithubConnector:
         self.owner = repository_owner
 
     def fetch_repositories(self):
+        print(end='.')
         for repository in self.github.get_user(self.owner).get_repos():
             yield Repository(repository.name)
 
