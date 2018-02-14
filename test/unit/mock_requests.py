@@ -37,6 +37,8 @@ class MockRequests:
             return 'The Maintainer', '2018010100'
         if plugin == 'local_published':
             return 'The Maintainer', '2018020913.29'
+        if plugin == 'local_uptodateint':
+            return 'The Maintainer', '2018021500'
         raise Exception('Invalid MockRequests.get_moodle_plugin_directory_data for: ' + plugin)
 
     @staticmethod
@@ -67,5 +69,8 @@ class MockRequests:
 
         if plugin == 'moodle-local_published':
             return MockRequests(200, '$plugin->version="2018020913.29";$plugin->component="local_published";')
+
+        if plugin == 'moodle-local_uptodateint':
+            return MockRequests(200, '$plugin->version="2018021500";$plugin->component="local_uptodateint";')
 
         raise Exception('Invalid MockRequests.get_github_versionphp for: ' + plugin)
