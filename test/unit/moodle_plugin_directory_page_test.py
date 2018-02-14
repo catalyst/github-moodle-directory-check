@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from app.checker import *
-from test.unit.mock_integration import MockRequests
+from test.unit.mock_requests import MockRequests
 
 
 class MoodlePluginDirectoryPageTest(unittest.TestCase):

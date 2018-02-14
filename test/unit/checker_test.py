@@ -4,7 +4,7 @@ from io import StringIO
 from unittest.mock import patch
 
 from app.checker import *
-from test.unit.mock_integration import *
+from test.unit.mock_requests import *
 
 
 class CheckerTest(unittest.TestCase):

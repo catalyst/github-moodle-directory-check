@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from app.checker import *
+from test.unit.mock_requests import MockRequests
 
 
 class RepositoriesTest(unittest.TestCase):
@@ -25,9 +26,9 @@ class RepositoriesTest(unittest.TestCase):
         self.assertEqual([], repositories.uptodate)
 
     def test_it_marks_as_invalid(self):
-        repository = Repository('moodle-local_ninja')
-        repositories = Repositories(GithubConnector('token', 'owner'), 'Me')
-        with patch.object(GithubConnector, 'get_file', return_value=None):
+        repository = Repository('moodle-not-a-plugin')
+        repositories = Repositories(GithubConnector('token', 'theowner'), 'The Maintainer')
+        with patch.object(requests, 'get', side_effect=MockRequests.get):
             repositories.categorise_repositories([repository])
         self.assertEqual([], repositories.skipped)
         self.assertEqual([repository], repositories.invalid)
