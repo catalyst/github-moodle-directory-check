@@ -23,7 +23,7 @@ class CheckerTest(unittest.TestCase):
     @staticmethod
     def run_checker(extra_args=None, args=None):
         if args is None:
-            args = ['--token', 'thetoken', '--owner', 'theowner', '--maintainer', 'Catalyst IT']
+            args = ['--token', 'thetoken', '--owner', 'theowner', '--maintainer', 'The Maintainer']
         if extra_args is not None:
             args += extra_args
         stdout = StringIO()

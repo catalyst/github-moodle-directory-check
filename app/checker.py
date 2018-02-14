@@ -104,7 +104,7 @@ class Repositories:
             self.thirdparty.append(repository)
             return
 
-        if repository.name == 'moodle-local_updateme':
+        if not directory.has_version(repository.github_version):
             self.outdated.append(repository)
             return
 

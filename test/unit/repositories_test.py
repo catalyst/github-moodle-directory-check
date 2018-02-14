@@ -60,3 +60,27 @@ class RepositoriesTest(unittest.TestCase):
         self.assertEqual([repository], repositories.thirdparty)
         self.assertEqual([], repositories.outdated)
         self.assertEqual([], repositories.uptodate)
+
+    def test_it_marks_as_outdated(self):
+        repository = Repository('moodle-local_updateme')
+        repositories = Repositories(GithubConnector('token', 'theowner'), 'The Maintainer')
+        with patch.object(requests, 'get', side_effect=MockRequests.get):
+            repositories.categorise_repositories([repository])
+        self.assertEqual([], repositories.skipped)
+        self.assertEqual([], repositories.invalid)
+        self.assertEqual([], repositories.unpublished)
+        self.assertEqual([], repositories.thirdparty)
+        self.assertEqual([repository], repositories.outdated)
+        self.assertEqual([], repositories.uptodate)
+
+    def test_it_marks_as_uptodate(self):
+        repository = Repository('moodle-local_published')
+        repositories = Repositories(GithubConnector('token', 'theowner'), 'The Maintainer')
+        with patch.object(requests, 'get', side_effect=MockRequests.get):
+            repositories.categorise_repositories([repository])
+        self.assertEqual([], repositories.skipped)
+        self.assertEqual([], repositories.invalid)
+        self.assertEqual([], repositories.unpublished)
+        self.assertEqual([], repositories.thirdparty)
+        self.assertEqual([], repositories.outdated)
+        self.assertEqual([repository], repositories.uptodate)
