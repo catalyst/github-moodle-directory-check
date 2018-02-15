@@ -24,7 +24,7 @@ class MockRequests:
             return MockRequests(404, 'Not found')
 
         maintainer = '<div class="maintainedby"><span class="name">{}</span></div>'.format(maintainer)
-        version = '<div class="versions-items"><h4>{}</h4></div>'.format(version)
+        version = '<div class="versions-items"><h4>XYZ <span class="version">({})</span></h4></div>'.format(version)
         return MockRequests(200, '<html>{}{}</html>'.format(maintainer, version))
 
     @staticmethod

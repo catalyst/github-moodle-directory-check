@@ -151,9 +151,9 @@ class MoodlePluginDirectoryPage:
         return False
 
     def has_version(self, version):
-        elements = self.pyquery('div.versions-items h4')
+        elements = self.pyquery('div.versions-items h4 span.version')
         for div in elements:
-            found = float(div.text.strip())
+            found = float(div.text.strip().rstrip(')').lstrip('('))
             if version == found:
                 return True
         return False
