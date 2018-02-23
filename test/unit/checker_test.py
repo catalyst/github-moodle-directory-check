@@ -34,19 +34,6 @@ class CheckerTest(unittest.TestCase):
                     Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
 
-    def test_it_shows_verbose_messages(self):
-        stdout, stderr = self.run_checker(['-v'])
-        stderr = stderr.strip().split('\n')
-        self.assertGreaterEqual(len(stderr), 6)
-        stderr = iter(stderr)
-        self.assertIn('GitHub for: theowner', next(stderr))
-        self.assertIn('Analysing: my-repository', next(stderr))
-        self.assertIn('Analysing: moodle-not-a-plugin', next(stderr))
-        self.assertIn('Analysing: moodle-new-plugin', next(stderr))
-        self.assertIn('Analysing: moodle-not-mine', next(stderr))
-        self.assertIn('Analysing: moodle-local_updateme', next(stderr))
-        self.assertIn('Analysing: moodle-local_published', next(stderr))
-
     def test_it_shows_help_if_missing_parameters(self):
         with self.assertRaises(SystemExit):
             stdout, stderr = self.run_checker([], [])

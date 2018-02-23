@@ -46,6 +46,13 @@ class IntegrationTest:
             raise AssertionError('Expected:\n{}\nFound:\n{}\n'.format(expected, context.stdout))
 
     @staticmethod
+    @then(u'the error output should be')
+    def step_impl(context):
+        expected = str(context.text) + '\n'
+        if context.stderr != expected:
+            raise AssertionError('Expected:\n{}\nFound:\n{}\n'.format(expected, context.stderr))
+
+    @staticmethod
     @then(u'the error output should be empty')
     def step_impl(context):
         if context.stderr != '':
