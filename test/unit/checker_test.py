@@ -34,16 +34,6 @@ class CheckerTest(unittest.TestCase):
                     Checker().run(args)
         return stdout.getvalue(), stderr.getvalue()
 
-    def test_it_lists_all_repository_statuses_in_the_moodle_plugin_directory(self):
-        stdout, stderr = self.run_checker(['-q'])
-        self.assertEquals(6, stdout.count('\n'), 'Invalid number of lines printed:\n' + stdout)
-        self.assertIn('skipped: my-repository', stdout)
-        self.assertIn('invalid: moodle-not-a-plugin', stdout)
-        self.assertIn('unpublished: moodle-new-plugin', stdout)
-        self.assertIn('thirdparty: moodle-not-mine', stdout)
-        self.assertIn('outdated: moodle-local_updateme', stdout)
-        self.assertIn('uptodate: moodle-local_published', stdout)
-
     def test_it_shows_verbose_messages(self):
         stdout, stderr = self.run_checker(['-v'])
         stderr = stderr.strip().split('\n')

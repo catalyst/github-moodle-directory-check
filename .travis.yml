@@ -5,7 +5,8 @@ python:
   - "nightly"
 
 install:
-  - pip install requests pygithub pyquery
+  - pip install behave requests pygithub pyquery
 
 script:
   - nosetests test
+  - behave test/behaviour
