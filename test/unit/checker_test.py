@@ -47,15 +47,6 @@ class CheckerTest(unittest.TestCase):
         self.assertIn('Analysing: moodle-local_updateme', next(stderr))
         self.assertIn('Analysing: moodle-local_published', next(stderr))
 
-    def test_it_shows_dots_for_each_repository_processed(self):
-        stdout, stderr = self.run_checker()
-        stdout = stdout.strip().split('\n')
-        self.assertGreaterEqual(len(stdout), 1)
-        stdout = stdout[0]
-        # One dot for fetching repositories on GitHub plus one for each repository
-        expected = '.' * (len(list(CheckerTest.mock_fetch_repositories())) + 1)
-        self.assertEquals(stdout, expected)
-
     def test_it_shows_help_if_missing_parameters(self):
         with self.assertRaises(SystemExit):
             stdout, stderr = self.run_checker([], [])
