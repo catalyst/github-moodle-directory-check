@@ -24,7 +24,7 @@ class IntegrationTest:
     @given(u'the user "theowner" on GitHub has the following repositories')
     def step_impl(context):
         context.repositories = []
-        for row in context.table:
+        for row in context.table.rows:
             context.repositories.append(Repository(row[0]))
 
     @staticmethod
@@ -39,16 +39,11 @@ class IntegrationTest:
         context.stderr = stderr
 
     @staticmethod
-    @then(u'the output should have the following plugins')
+    @then(u'the output should be')
     def step_impl(context):
-        expectedrows = len(context.table.rows)
-        stdout = context.stdout
-        if expectedrows != stdout.count('\n'):
-            raise AssertionError('Invalid number of lines printed: {}'.format(stdout.count('\n')))
-        for row in context.table:
-            expected = row[0]
-            if expected not in stdout:
-                raise AssertionError('Cannot find int stdout: {}'.format(expected))
+        expected = str(context.text) + '\n'
+        if context.stdout != expected:
+            raise AssertionError('Expected:\n{}\nFound:\n{}\n'.format(expected, context.stdout))
 
     @staticmethod
     @then(u'the error output should be empty')

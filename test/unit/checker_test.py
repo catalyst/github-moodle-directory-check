@@ -47,19 +47,6 @@ class CheckerTest(unittest.TestCase):
         self.assertIn('Analysing: moodle-local_updateme', next(stderr))
         self.assertIn('Analysing: moodle-local_published', next(stderr))
 
-    def test_it_aligns_the_group_name(self):
-        stdout, stderr = self.run_checker()
-        lines = stdout.strip('\n').split('\n')
-        position = None
-        for line in lines:
-            found = line.find(':')
-            if found == -1:
-                continue
-            if position is None:
-                position = found
-            else:
-                self.assertEquals(position, found)
-
     def test_it_shows_dots_for_each_repository_processed(self):
         stdout, stderr = self.run_checker()
         stdout = stdout.strip().split('\n')
