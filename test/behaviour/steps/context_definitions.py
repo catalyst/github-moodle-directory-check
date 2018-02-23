@@ -17,7 +17,10 @@ class IntegrationTest:
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
             with patch.object(GithubConnector, 'fetch_repositories', side_effect=[mocked_repositories]):
                 with patch.object(requests, 'get', side_effect=MockRequests.get):
-                    Checker().run(args)
+                    try:
+                        Checker().run(args)
+                    except SystemExit:
+                        pass
         return stdout.getvalue(), stderr.getvalue()
 
     @staticmethod
@@ -51,6 +54,18 @@ class IntegrationTest:
         expected = str(context.text) + '\n'
         if context.stderr != expected:
             raise AssertionError('Expected:\n{}\nFound:\n{}\n'.format(expected, context.stderr))
+
+    @staticmethod
+    @then(u'the error output should contain "{text}"')
+    def step_impl(context, text):
+        if text not in context.stderr:
+            raise AssertionError('Not found:\n{}\nin:\n{}\n'.format(text, context.stderr))
+
+    @staticmethod
+    @then(u'the output should be empty')
+    def step_impl(context):
+        if context.stdout != '':
+            raise NotImplementedError(u'stdout not empty: {}' + format(context.stdout))
 
     @staticmethod
     @then(u'the error output should be empty')

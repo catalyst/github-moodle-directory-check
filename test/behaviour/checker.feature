@@ -1,5 +1,18 @@
 Feature: Use checker to find the statuses of our plugins on GitHub
 
+  Scenario: Run checker without parameters should display the help
+    Given the user "theowner" on GitHub has the following repositories:
+      | Repository             |
+      | my-repository          |
+      | moodle-not-a-plugin    |
+      | moodle-new-plugin      |
+      | moodle-not-mine        |
+      | moodle-local_updateme  |
+      | moodle-local_published |
+    When I run "checker.py"
+    Then the output should be empty
+    And the error output should contain "the following arguments are required: --token, --owner, --maintainer"
+
   Scenario: Run checker should show results with dots for progress
     Given the user "theowner" on GitHub has the following repositories:
       | Repository             |
