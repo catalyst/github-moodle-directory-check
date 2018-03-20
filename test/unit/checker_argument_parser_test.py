@@ -1,6 +1,6 @@
 import unittest
 
-from app.checker import *
+from app.checker_argument_parser import CheckerArgumentParser
 
 
 class CheckerArgumentParserTest(unittest.TestCase):

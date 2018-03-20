@@ -1,7 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from app.checker import *
+import requests
+
+from app.moodle_plugin_directory_page import MoodlePluginDirectoryPage
 from test.unit.mock_requests import MockRequests
 
 
