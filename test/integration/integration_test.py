@@ -2,6 +2,7 @@ import os
 import unittest
 
 from app.checker import *
+from app.moodle_plugin_directory_page import MoodlePluginDirectoryPage
 
 
 class IntegrationTest(unittest.TestCase):

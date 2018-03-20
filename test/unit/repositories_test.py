@@ -1,7 +1,10 @@
 import unittest
 from unittest.mock import patch
 
+import requests
+
 from app.checker import *
+from app.repository import Repository
 from test.unit.mock_requests import MockRequests
 
 

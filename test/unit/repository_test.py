@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from app.checker import *
+from app.repository import Repository
 
 
 class RepositoryTest(unittest.TestCase):
